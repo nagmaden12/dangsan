@@ -99,3 +99,59 @@ The run scripts write logs to the standard output. To analyze the results after
 running a number of benchmarks, redirect each output to a separate file and pass
 the names of output files (or, alternatively, the name of the directory
 containing the output files) to scripts/analyze-logs.py. 
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("Service Worker Registered"))
+        .catch(err => console.log("Service Worker Error", err));
+}
+
+let installPromptEvent;
+window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    installPromptEvent = event;
+    document.getElementById('installButton').classList.remove('hidden');
+});
+
+document.getElementById('installButton').addEventListener('click', () => {
+    if (installPromptEvent) {
+        installPromptEvent.prompt();
+        installPromptEvent.userChoice.then(choice => {
+            if (choice.outcome === 'accepted') {
+                console.log("User installed the app");
+            }
+        });
+    }
+});
+
+function calculateProfitLoss() {
+    let revenue = parseFloat(document.getElementById("revenue").value) || 0;
+    let expenses = [
+        parseFloat(document.getElementById("rent").value) || 0,
+        parseFloat(document.getElementById("salaries").value) || 0,
+        parseFloat(document.getElementById("ingredients").value) || 0,
+        parseFloat(document.getElementById("utilities").value) || 0,
+        parseFloat(document.getElementById("marketing").value) || 0,
+        parseFloat(document.getElementById("tax").value) || 0,
+        parseFloat(document.getElementById("miscellaneous").value) || 0
+    ];
+    let totalExpenses = expenses.reduce((sum, value) => sum + value, 0);
+    let netProfit = revenue - totalExpenses;
+
+    let report = `Revenue: $${revenue}\nExpenses: $${totalExpenses}\nNet Profit: $${netProfit}`;
+    document.getElementById("result").innerHTML = report.replace(/\n/g, "<br>");
+    document.getElementById("result").classList.remove("hidden");
+    document.getElementById("shareButton").classList.remove("hidden");
+}
+
+function shareReport() {
+    let reportText = document.getElementById("result").innerText;
+    let email = prompt("Enter email to share:");
+    let phone = prompt("Enter phone number for SMS:");
+
+    if (email) {
+        window.open(`mailto:${email}?subject=Financial Report&body=${encodeURIComponent(reportText)}`);
+    }
+    if (phone) {
+        window.open(`sms:${phone}?body=${encodeURIComponent(reportText)}`);
+    }
+}
